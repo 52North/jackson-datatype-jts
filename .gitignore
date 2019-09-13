@@ -243,3 +243,18 @@ nbdist/
 .nb-gradle/
 
 
+### https://raw.github.com/github/gitignore/5be64312ae8e6afe2b62b550400041e90c69db6a/Maven.gitignore
+
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
+
+
