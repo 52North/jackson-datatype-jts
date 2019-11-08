@@ -33,6 +33,9 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -41,6 +44,8 @@ import java.util.Optional;
  * @author Christian Autermann
  */
 public class GeometrySerializer extends JsonSerializer<Geometry> {
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.########",
+                                                                          new DecimalFormatSymbols(Locale.ROOT));
 
     private final IncludeBoundingBox includeBoundingBox;
 
@@ -222,10 +227,10 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializerProvider provider)
             throws IOException {
         generator.writeStartArray();
-        generator.writeNumber(value.getX());
-        generator.writeNumber(value.getY());
+        generator.writeNumber(DECIMAL_FORMAT.format(value.getX()));
+        generator.writeNumber(DECIMAL_FORMAT.format(value.getY()));
         if (!Double.isNaN(value.getZ()) && Double.isFinite(value.getZ())) {
-            generator.writeNumber(value.getZ());
+            generator.writeNumber(DECIMAL_FORMAT.format(value.getZ()));
         }
         generator.writeEndArray();
     }
