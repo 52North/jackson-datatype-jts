@@ -16,7 +16,6 @@
  */
 package org.n52.jackson.datatype.jts;
 
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -39,15 +38,7 @@ import java.util.Optional;
  * @author Christian Autermann
  */
 public class JtsModule extends SimpleModule {
-    private static final int MAJOR = 1;
-    private static final int MINOR = 0;
-    private static final int PATCH = 0;
     private static final long serialVersionUID = 1L;
-    private static final String GROUP_ID = "org.n52.jackson.datatype";
-    private static final String ARTIFACT_ID = "jackson-datatype-jts";
-    private static final String SNAPSHOT_INFO = null;
-    private static final String MODULE_NAME = "JtsModule";
-
     private final GeometryFactory geometryFactory;
     private final IncludeBoundingBox includeBoundingBox;
 
@@ -83,7 +74,7 @@ public class JtsModule extends SimpleModule {
      * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
      */
     public JtsModule(GeometryFactory geometryFactory, IncludeBoundingBox includeBoundingBox) {
-        super(MODULE_NAME, new Version(MAJOR, MINOR, PATCH, SNAPSHOT_INFO, GROUP_ID, ARTIFACT_ID));
+        super(VersionInfo.getVersion());
         this.geometryFactory = Optional.ofNullable(geometryFactory).orElseGet(JtsModule::getDefaultGeometryFactory);
         this.includeBoundingBox = Optional.ofNullable(includeBoundingBox).orElseGet(IncludeBoundingBox::never);
     }
