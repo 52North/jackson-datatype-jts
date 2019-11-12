@@ -66,7 +66,7 @@
     </license>
   </licenses>
   <properties>
-    <jackson-version>2.10.0</jackson-version>
+    <jackson-version>2.10.1</jackson-version>
   </properties>
   <dependencies>
     <dependency>
