@@ -32,9 +32,11 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -44,16 +46,15 @@ import java.util.Optional;
  * @author Christian Autermann
  */
 public class GeometrySerializer extends JsonSerializer<Geometry> {
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.########",
-                                                                          new DecimalFormatSymbols(Locale.ROOT));
-
+    static final int DEFAULT_DECIMAL_PLACES = 8;
+    private final NumberFormat decimalFormat;
     private final IncludeBoundingBox includeBoundingBox;
 
     /**
      * Creates a new {@link GeometrySerializer}.
      */
     public GeometrySerializer() {
-        this(null);
+        this(null, DEFAULT_DECIMAL_PLACES);
     }
 
     /**
@@ -61,9 +62,30 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
      *
      * @param includeBoundingBox when to include a bounding box for a {@link Geometry}.
      */
-    public GeometrySerializer(IncludeBoundingBox includeBoundingBox) {
-        this.includeBoundingBox = Optional.ofNullable(includeBoundingBox)
-                .orElseGet(IncludeBoundingBox::never);
+    public GeometrySerializer(@Nullable IncludeBoundingBox includeBoundingBox) {
+        this(includeBoundingBox, DEFAULT_DECIMAL_PLACES);
+    }
+
+    /**
+     * Creates a new {@link GeometrySerializer}.
+     *
+     * @param includeBoundingBox when to include a bounding box for a {@link Geometry}.
+     * @param decimalPlaces      The number of decimal places for encoded coordinates.
+     */
+    public GeometrySerializer(@Nullable IncludeBoundingBox includeBoundingBox, int decimalPlaces) {
+        this.includeBoundingBox = Optional.ofNullable(includeBoundingBox).orElseGet(IncludeBoundingBox::never);
+        if (decimalPlaces < 0) {
+            throw new IllegalArgumentException("decimalPlaces < 0");
+        }
+        this.decimalFormat = createNumberFormat(decimalPlaces);
+    }
+
+    private NumberFormat createNumberFormat(int decimalPlaces) {
+        NumberFormat format = DecimalFormat.getInstance(Locale.ROOT);
+        format.setRoundingMode(RoundingMode.HALF_UP);
+        format.setMinimumFractionDigits(0);
+        format.setMaximumFractionDigits(decimalPlaces);
+        return format;
     }
 
     @Override
@@ -227,10 +249,10 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializerProvider provider)
             throws IOException {
         generator.writeStartArray();
-        generator.writeNumber(DECIMAL_FORMAT.format(value.getX()));
-        generator.writeNumber(DECIMAL_FORMAT.format(value.getY()));
+        generator.writeNumber(decimalFormat.format(value.getX()));
+        generator.writeNumber(decimalFormat.format(value.getY()));
         if (!Double.isNaN(value.getZ()) && Double.isFinite(value.getZ())) {
-            generator.writeNumber(DECIMAL_FORMAT.format(value.getZ()));
+            generator.writeNumber(decimalFormat.format(value.getZ()));
         }
         generator.writeEndArray();
     }

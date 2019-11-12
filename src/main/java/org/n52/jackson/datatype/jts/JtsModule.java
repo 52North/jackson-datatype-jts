@@ -28,9 +28,8 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.PrecisionModel;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * {@link com.fasterxml.jackson.databind.Module} to add serialization for JTS geometries.
@@ -41,12 +40,22 @@ public class JtsModule extends SimpleModule {
     private static final long serialVersionUID = 1L;
     private final GeometryFactory geometryFactory;
     private final IncludeBoundingBox includeBoundingBox;
+    private final int decimalPlaces;
 
     /**
      * Creates a new {@link JtsModule}.
      */
     public JtsModule() {
-        this(null, null);
+        this(null, null, GeometrySerializer.DEFAULT_DECIMAL_PLACES);
+    }
+
+    /**
+     * Creates a new {@link JtsModule}.
+     *
+     * @param decimalPlaces The number of decimal places for encoded coordinates.
+     */
+    public JtsModule(int decimalPlaces) {
+        this(null, null, decimalPlaces);
     }
 
     /**
@@ -54,8 +63,18 @@ public class JtsModule extends SimpleModule {
      *
      * @param geometryFactory The {@link GeometryFactory} to use to construct geometries.
      */
-    public JtsModule(GeometryFactory geometryFactory) {
-        this(geometryFactory, null);
+    public JtsModule(@Nullable GeometryFactory geometryFactory) {
+        this(geometryFactory, null, GeometrySerializer.DEFAULT_DECIMAL_PLACES);
+    }
+
+    /**
+     * Creates a new {@link JtsModule}.
+     *
+     * @param geometryFactory The {@link GeometryFactory} to use to construct geometries.
+     * @param decimalPlaces   The number of decimal places for encoded coordinates.
+     */
+    public JtsModule(@Nullable GeometryFactory geometryFactory, int decimalPlaces) {
+        this(geometryFactory, null, decimalPlaces);
     }
 
     /**
@@ -63,8 +82,18 @@ public class JtsModule extends SimpleModule {
      *
      * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
      */
-    public JtsModule(IncludeBoundingBox includeBoundingBox) {
-        this(null, includeBoundingBox);
+    public JtsModule(@Nullable IncludeBoundingBox includeBoundingBox) {
+        this(null, includeBoundingBox, GeometrySerializer.DEFAULT_DECIMAL_PLACES);
+    }
+
+    /**
+     * Creates a new {@link JtsModule}.
+     *
+     * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
+     * @param decimalPlaces      The number of decimal places for encoded coordinates.
+     */
+    public JtsModule(@Nullable IncludeBoundingBox includeBoundingBox, int decimalPlaces) {
+        this(null, includeBoundingBox, decimalPlaces);
     }
 
     /**
@@ -73,10 +102,15 @@ public class JtsModule extends SimpleModule {
      * @param geometryFactory    The {@link GeometryFactory} to use to construct geometries.
      * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
      */
-    public JtsModule(GeometryFactory geometryFactory, IncludeBoundingBox includeBoundingBox) {
+    public JtsModule(@Nullable GeometryFactory geometryFactory, @Nullable IncludeBoundingBox includeBoundingBox,
+                     int decimalPlaces) {
         super(VersionInfo.getVersion());
-        this.geometryFactory = Optional.ofNullable(geometryFactory).orElseGet(JtsModule::getDefaultGeometryFactory);
-        this.includeBoundingBox = Optional.ofNullable(includeBoundingBox).orElseGet(IncludeBoundingBox::never);
+        this.geometryFactory = geometryFactory;
+        this.includeBoundingBox = includeBoundingBox;
+        if (decimalPlaces < 0) {
+            throw new IllegalArgumentException("decimalPlaces < 0");
+        }
+        this.decimalPlaces = decimalPlaces;
     }
 
     @Override
@@ -96,15 +130,11 @@ public class JtsModule extends SimpleModule {
     }
 
     private JsonSerializer<Geometry> getSerializer() {
-        return new GeometrySerializer(this.includeBoundingBox);
+        return new GeometrySerializer(this.includeBoundingBox, this.decimalPlaces);
     }
 
     private JsonDeserializer<Geometry> getDeserializer() {
-        return geometryFactory == null ? new GeometryDeserializer() : new GeometryDeserializer(geometryFactory);
-    }
-
-    private static GeometryFactory getDefaultGeometryFactory() {
-        return new GeometryFactory(new PrecisionModel(), 4326);
+        return new GeometryDeserializer(geometryFactory);
     }
 
 }

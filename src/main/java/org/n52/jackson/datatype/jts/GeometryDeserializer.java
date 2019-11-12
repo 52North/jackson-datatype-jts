@@ -34,6 +34,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -43,6 +44,8 @@ import java.util.Optional;
  * @author Christian Autermann
  */
 public class GeometryDeserializer extends JsonDeserializer<Geometry> {
+    private static final int DEFAULT_SRID = 4326;
+    private static final GeometryFactory DEFAULT_GEOMETRY_FACTORY = getDefaultGeometryFactory();
     private final GeometryFactory geometryFactory;
 
     /**
@@ -57,9 +60,8 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
      *
      * @param geometryFactory The {@link GeometryFactory} to use to construct geometries.
      */
-    public GeometryDeserializer(GeometryFactory geometryFactory) {
-        this.geometryFactory = Optional.ofNullable(geometryFactory)
-                .orElseGet(GeometryDeserializer::defaultGeometryFactory);
+    public GeometryDeserializer(@Nullable GeometryFactory geometryFactory) {
+        this.geometryFactory = Optional.ofNullable(geometryFactory).orElse(DEFAULT_GEOMETRY_FACTORY);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
         String typeName = node.get(GeoJsonConstants.Fields.TYPE).asText();
 
         GeometryType type = GeometryType.fromString(typeName)
-                .orElseThrow(() -> invalidGeometryType(context, typeName));
+                                        .orElseThrow(() -> invalidGeometryType(context, typeName));
 
         switch (type) {
             case POINT:
@@ -200,8 +202,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
         }
     }
 
-    private static GeometryFactory defaultGeometryFactory() {
-        return new GeometryFactory(new PrecisionModel(), 4326);
+    private static GeometryFactory getDefaultGeometryFactory() {
+        return new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), DEFAULT_SRID);
     }
-
 }
