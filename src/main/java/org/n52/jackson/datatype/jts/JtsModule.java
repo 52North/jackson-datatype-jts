@@ -102,6 +102,16 @@ public class JtsModule extends SimpleModule {
      * @param geometryFactory    The {@link GeometryFactory} to use to construct geometries.
      * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
      */
+    public JtsModule(@Nullable GeometryFactory geometryFactory, @Nullable IncludeBoundingBox includeBoundingBox) {
+        this(geometryFactory, includeBoundingBox, GeometrySerializer.DEFAULT_DECIMAL_PLACES);
+    }
+
+    /**
+     * Creates a new {@link JtsModule}.
+     *
+     * @param geometryFactory    The {@link GeometryFactory} to use to construct geometries.
+     * @param includeBoundingBox The {@link IncludeBoundingBox} to use to serialize geometries.
+     */
     public JtsModule(@Nullable GeometryFactory geometryFactory, @Nullable IncludeBoundingBox includeBoundingBox,
                      int decimalPlaces) {
         super(VersionInfo.getVersion());
