@@ -36,19 +36,19 @@ interface VersionInfo {
 
         if (v.length >= 3) {
             try {
-                patch = Integer.parseInt(s[2], 10);
+                patch = Integer.parseInt(v[2], 10);
             } catch (IllegalArgumentException ignored) {
             }
         }
         if (v.length >= 2) {
             try {
-                minor = Integer.parseInt(s[2], 10);
+                minor = Integer.parseInt(v[1], 10);
             } catch (IllegalArgumentException ignored) {
             }
         }
         if (v.length >= 1) {
             try {
-                major = Integer.parseInt(s[2], 10);
+                major = Integer.parseInt(v[0], 10);
             } catch (IllegalArgumentException ignored) {
             }
         }
