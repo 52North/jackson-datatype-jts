@@ -16,6 +16,9 @@
  */
 package org.n52.jackson.datatype.jts;
 
+/**
+ * GeoJSON types.
+ */
 public interface Type {
     /**
      * The type {@value}.
