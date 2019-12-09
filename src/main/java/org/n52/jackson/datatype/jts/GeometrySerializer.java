@@ -85,6 +85,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
         format.setRoundingMode(RoundingMode.HALF_UP);
         format.setMinimumFractionDigits(0);
         format.setMaximumFractionDigits(decimalPlaces);
+        format.setGroupingUsed(false);
         return format;
     }
 
