@@ -125,7 +125,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
 
         serializeTypeAndBoundingBox(GeometryType.GEOMETRY_COLLECTION, value, generator);
 
-        generator.writeArrayFieldStart(GeoJsonConstants.Fields.GEOMETRIES);
+        generator.writeArrayFieldStart(Field.GEOMETRIES);
 
         for (int i = 0; i != value.getNumGeometries(); ++i) {
             serialize(value.getGeometryN(i), generator, provider);
@@ -139,7 +139,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_POINT, value, generator);
-        generator.writeArrayFieldStart(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
 
         for (int i = 0; i < value.getNumGeometries(); ++i) {
             serializeCoordinate((Point) value.getGeometryN(i), generator, provider);
@@ -153,7 +153,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_LINE_STRING, value, generator);
-        generator.writeArrayFieldStart(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
         for (int i = 0; i < value.getNumGeometries(); ++i) {
             serializeCoordinates((LineString) value.getGeometryN(i), generator, provider);
         }
@@ -165,7 +165,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_POLYGON, value, generator);
-        generator.writeArrayFieldStart(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
         for (int i = 0; i < value.getNumGeometries(); ++i) {
             serializeCoordinates((Polygon) value.getGeometryN(i), generator, provider);
         }
@@ -177,7 +177,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.POLYGON, value, generator);
-        generator.writeFieldName(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         GeometrySerializer.this.serializeCoordinates(value, generator, provider);
         generator.writeEndObject();
     }
@@ -186,7 +186,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.LINE_STRING, value, generator);
-        generator.writeFieldName(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         serializeCoordinates(value, generator, provider);
         generator.writeEndObject();
     }
@@ -195,7 +195,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
             throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.POINT, value, generator);
-        generator.writeFieldName(GeoJsonConstants.Fields.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         serializeCoordinate(value, generator, provider);
         generator.writeEndObject();
     }
@@ -203,11 +203,11 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     private void serializeTypeAndBoundingBox(GeometryType type, Geometry geometry, JsonGenerator generator)
             throws IOException {
 
-        generator.writeStringField(GeoJsonConstants.Fields.TYPE, type.toString());
+        generator.writeStringField(Field.TYPE, type.toString());
 
         if (this.includeBoundingBox.shouldIncludeBoundingBoxFor(type) && !geometry.isEmpty()) {
             Envelope envelope = geometry.getEnvelopeInternal();
-            generator.writeArrayFieldStart(GeoJsonConstants.Fields.BOUNDING_BOX);
+            generator.writeArrayFieldStart(Field.BOUNDING_BOX);
             generator.writeNumber(envelope.getMinX());
             generator.writeNumber(envelope.getMinY());
             generator.writeNumber(envelope.getMaxX());

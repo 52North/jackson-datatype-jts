@@ -18,27 +18,15 @@ package org.n52.jackson.datatype.jts;
 
 /**
  * GeoJSON constants.
+ *
+ * @deprecated use {@link Field}.
  */
+@Deprecated
 public interface GeoJsonConstants {
     /**
-     * JSON field names.
+     * @deprecated use {@link Field}.
      */
-    interface Fields {
-        /**
-         * The {@value} field.
-         */
-        String TYPE = "type";
-        /**
-         * The {@value} field.
-         */
-        String GEOMETRIES = "geometries";
-        /**
-         * The {@value} field.
-         */
-        String COORDINATES = "coordinates";
-        /**
-         * The {@value} field.
-         */
-        String BOUNDING_BOX = "bbox";
-    }
+    @Deprecated
+    interface Fields extends Field {}
+
 }

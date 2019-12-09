@@ -71,7 +71,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private Geometry deserializeGeometry(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        String typeName = node.get(GeoJsonConstants.Fields.TYPE).asText();
+        String typeName = node.get(Field.TYPE).asText();
 
         GeometryType type = GeometryType.fromString(typeName)
                                         .orElseThrow(() -> invalidGeometryType(context, typeName));
@@ -101,18 +101,18 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private Point deserializePoint(JsonNode node, DeserializationContext context) throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         return this.geometryFactory.createPoint(deserializeCoordinate(coordinates, context));
     }
 
     private Polygon deserializePolygon(JsonNode node, DeserializationContext context) throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         return deserializeLinearRings(coordinates, context);
     }
 
     private MultiPolygon deserializeMultiPolygon(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         Polygon[] polygons = new Polygon[coordinates.size()];
         for (int i = 0; i != coordinates.size(); ++i) {
             polygons[i] = deserializeLinearRings(coordinates.get(i), context);
@@ -122,14 +122,14 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private MultiPoint deserializeMultiPoint(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createMultiPointFromCoords(coords);
     }
 
     private GeometryCollection deserializeGeometryCollection(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode geometries = node.get(GeoJsonConstants.Fields.GEOMETRIES);
+        JsonNode geometries = node.get(Field.GEOMETRIES);
         Geometry[] geom = new Geometry[geometries.size()];
         for (int i = 0; i != geometries.size(); ++i) {
             geom[i] = deserializeGeometry(geometries.get(i), context);
@@ -139,7 +139,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private MultiLineString deserializeMultiLineString(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         LineString[] lineStrings = lineStringsFromJson(coordinates, context);
         return this.geometryFactory.createMultiLineString(lineStrings);
     }
@@ -156,7 +156,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private LineString deserializeLineString(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(GeoJsonConstants.Fields.COORDINATES);
+        JsonNode coordinates = node.get(Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createLineString(coords);
     }

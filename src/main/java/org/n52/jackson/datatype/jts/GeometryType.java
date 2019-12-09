@@ -33,31 +33,31 @@ public enum GeometryType {
     /**
      * Geometries of type {@link Point}.
      */
-    POINT("Point"),
+    POINT(Type.POINT),
     /**
      * Geometries of type {@link LineString}.
      */
-    LINE_STRING("LineString"),
+    LINE_STRING(Type.LINE_STRING),
     /**
      * Geometries of type {@link Polygon}.
      */
-    POLYGON("Polygon"),
+    POLYGON(Type.POLYGON),
     /**
      * Geometries of type {@link MultiPoint}.
      */
-    MULTI_POINT("MultiPoint"),
+    MULTI_POINT(Type.MULTI_POINT),
     /**
      * Geometries of type {@link MultiLineString}.
      */
-    MULTI_LINE_STRING("MultiLineString"),
+    MULTI_LINE_STRING(Type.MULTI_LINE_STRING),
     /**
      * Geometries of type {@link MultiPolygon}.
      */
-    MULTI_POLYGON("MultiPolygon"),
+    MULTI_POLYGON(Type.MULTI_POLYGON),
     /**
      * Geometries of type {@link GeometryCollection}.
      */
-    GEOMETRY_COLLECTION("GeometryCollection");
+    GEOMETRY_COLLECTION(Type.GEOMETRY_COLLECTION);
 
     private final String type;
 
