@@ -63,7 +63,7 @@
     </license>
   </licenses>
   <properties>
-    <jackson-version>2.11.2</jackson-version>
+    <jackson-version>2.11.3</jackson-version>
   </properties>
   <dependencies>
     <dependency>
