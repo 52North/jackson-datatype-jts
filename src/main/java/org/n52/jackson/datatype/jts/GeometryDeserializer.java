@@ -74,7 +74,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
         String typeName = node.get(Field.TYPE).asText();
 
         GeometryType type = GeometryType.fromString(typeName)
-                                        .orElseThrow(() -> invalidGeometryType(context, typeName));
+                .orElseThrow(() -> invalidGeometryType(context, typeName));
 
         switch (type) {
             case POINT:
@@ -101,18 +101,18 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private Point deserializePoint(JsonNode node, DeserializationContext context) throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         return this.geometryFactory.createPoint(deserializeCoordinate(coordinates, context));
     }
 
     private Polygon deserializePolygon(JsonNode node, DeserializationContext context) throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         return deserializeLinearRings(coordinates, context);
     }
 
     private MultiPolygon deserializeMultiPolygon(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Polygon[] polygons = new Polygon[coordinates.size()];
         for (int i = 0; i != coordinates.size(); ++i) {
             polygons[i] = deserializeLinearRings(coordinates.get(i), context);
@@ -122,14 +122,14 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private MultiPoint deserializeMultiPoint(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createMultiPointFromCoords(coords);
     }
 
     private GeometryCollection deserializeGeometryCollection(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode geometries = node.get(Field.GEOMETRIES);
+        JsonNode geometries = getArray(node, context, Field.GEOMETRIES);
         Geometry[] geom = new Geometry[geometries.size()];
         for (int i = 0; i != geometries.size(); ++i) {
             geom[i] = deserializeGeometry(geometries.get(i), context);
@@ -139,7 +139,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private MultiLineString deserializeMultiLineString(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         LineString[] lineStrings = lineStringsFromJson(coordinates, context);
         return this.geometryFactory.createMultiLineString(lineStrings);
     }
@@ -156,7 +156,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
 
     private LineString deserializeLineString(JsonNode node, DeserializationContext context)
             throws JsonMappingException {
-        JsonNode coordinates = node.get(Field.COORDINATES);
+        JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createLineString(coords);
     }
@@ -191,15 +191,34 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
         if (node.size() < 2) {
             throw JsonMappingException.from(context, String.format("Invalid number of ordinates: %d", node.size()));
         } else {
-            double x = node.get(0).asDouble();
-            double y = node.get(1).asDouble();
+            double x = getOrdinate(node, 0, context);
+            double y = getOrdinate(node, 1, context);
             if (node.size() < 3) {
                 return new Coordinate(x, y);
             } else {
-                double z = node.get(2).asDouble();
+                double z = getOrdinate(node, 2, context);
                 return new Coordinate(x, y, z);
             }
         }
+    }
+
+    private JsonNode getArray(JsonNode node, DeserializationContext context, String fieldName)
+            throws JsonMappingException {
+        JsonNode coordinates = node.get(fieldName);
+        if (coordinates != null && !coordinates.isArray()) {
+            throw JsonMappingException.from(context, "Invalid coordinates, expecting an array but got: "
+                    + coordinates.getNodeType().toString());
+        }
+        return coordinates;
+    }
+
+    private double getOrdinate(JsonNode node, int i, DeserializationContext context) throws JsonMappingException {
+        JsonNode ordinate = node.get(i);
+        if (!ordinate.isNumber()) {
+            throw JsonMappingException.from(context, "Invalid coordinates, expecting numbers but got: "
+                    + ordinate.getNodeType().toString());
+        }
+        return ordinate.asDouble();
     }
 
     private static GeometryFactory getDefaultGeometryFactory() {
