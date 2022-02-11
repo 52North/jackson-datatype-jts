@@ -19,6 +19,7 @@ package org.n52.jackson.datatype.jts;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -126,7 +127,8 @@ public class JtsModule extends SimpleModule {
     @Override
     public void setupModule(SetupContext context) {
         JsonDeserializer<Geometry> deserializer = getDeserializer();
-        addSerializer(Geometry.class, getSerializer());
+        addSerializer(Geometry.class, getGeometrySerializer());
+        addSerializer(Coordinate.class, getCoordinateSerializer());
         addDeserializer(Geometry.class, deserializer);
         addDeserializer(Point.class, new TypeSafeJsonDeserializer<>(Point.class, deserializer));
         addDeserializer(LineString.class, new TypeSafeJsonDeserializer<>(LineString.class, deserializer));
@@ -136,15 +138,20 @@ public class JtsModule extends SimpleModule {
         addDeserializer(MultiPolygon.class, new TypeSafeJsonDeserializer<>(MultiPolygon.class, deserializer));
         addDeserializer(GeometryCollection.class,
                         new TypeSafeJsonDeserializer<>(GeometryCollection.class, deserializer));
+        addDeserializer(Coordinate.class, new CoordinateDeserializer());
         super.setupModule(context);
     }
 
-    private JsonSerializer<Geometry> getSerializer() {
+    private JsonSerializer<Geometry> getGeometrySerializer() {
         return new GeometrySerializer(this.includeBoundingBox, this.decimalPlaces);
     }
 
     private JsonDeserializer<Geometry> getDeserializer() {
         return new GeometryDeserializer(geometryFactory);
+    }
+
+    private JsonSerializer<Coordinate> getCoordinateSerializer() {
+        return new CoordinateSerializer(this.decimalPlaces);
     }
 
 }
