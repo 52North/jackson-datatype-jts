@@ -124,7 +124,7 @@ public class JtsModule extends SimpleModule {
 
     @Override
     public void setupModule(SetupContext context) {
-        JsonDeserializer<Geometry> deserializer = getDeserializer();
+        var deserializer = getDeserializer();
         addSerializer(Geometry.class, getSerializer());
         addDeserializer(Geometry.class, deserializer);
         addDeserializer(Point.class, new TypeSafeJsonDeserializer<>(Point.class, deserializer));

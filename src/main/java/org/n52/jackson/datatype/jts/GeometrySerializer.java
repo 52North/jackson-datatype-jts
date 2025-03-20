@@ -80,7 +80,7 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     }
 
     private NumberFormat createNumberFormat(int decimalPlaces) {
-        NumberFormat format = DecimalFormat.getInstance(Locale.ROOT);
+        var format = DecimalFormat.getInstance(Locale.ROOT);
         format.setRoundingMode(RoundingMode.HALF_UP);
         format.setMinimumFractionDigits(0);
         format.setMaximumFractionDigits(decimalPlaces);
