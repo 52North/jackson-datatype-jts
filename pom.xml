@@ -26,7 +26,7 @@
   <groupId>org.n52.jackson</groupId>
   <artifactId>jackson-datatype-jts</artifactId>
   <inceptionYear>2019</inceptionYear>
-  <version>2.0.0</version>
+  <version>2.1.0-SNAPSHOT</version>
   <name>Jackson JTS datatype</name>
   <description>Jackson JTS datatype</description>
   <developers>
@@ -43,7 +43,7 @@
     <url>https://github.com/52North/jackson-datatype-jts</url>
     <connection>scm:git:https://github.com/52North/jackson-datatype-jts.git</connection>
     <developerConnection>scm:git:https://github.com/52North/jackson-datatype-jts.git</developerConnection>
-    <tag>v2.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>GitHub issues</system>
