@@ -134,7 +134,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.12</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>timestamp-property</id>
@@ -206,7 +206,7 @@
           <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
-            <version>4.1.2</version>
+            <version>4.2.0</version>
             <scope>runtime</scope>
           </dependency>
           <dependency>
