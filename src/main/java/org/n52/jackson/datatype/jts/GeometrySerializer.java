@@ -218,11 +218,12 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     private void serializeCoordinates(Polygon value, JsonGenerator generator, SerializerProvider provider)
             throws IOException {
         generator.writeStartArray();
+        if (!value.isEmpty()) {
+            serializeCoordinates(value.getExteriorRing(), generator, provider);
 
-        serializeCoordinates(value.getExteriorRing(), generator, provider);
-
-        for (int i = 0; i < value.getNumInteriorRing(); ++i) {
-            serializeCoordinates(value.getInteriorRingN(i), generator, provider);
+            for (int i = 0; i < value.getNumInteriorRing(); ++i) {
+                serializeCoordinates(value.getInteriorRingN(i), generator, provider);
+            }
         }
         generator.writeEndArray();
     }
