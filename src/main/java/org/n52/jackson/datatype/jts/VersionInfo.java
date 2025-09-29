@@ -15,7 +15,7 @@
  */
 package org.n52.jackson.datatype.jts;
 
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 
 interface VersionInfo {
     String GROUP_ID = "${project.groupId}";
