@@ -15,11 +15,12 @@
  */
 package org.n52.jackson.datatype.jts;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -27,8 +28,9 @@ public class DeserializeTest {
     private final ObjectMapper mapper;
 
     public DeserializeTest() {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JtsModule());
+        mapper = JsonMapper.builder()
+                .addModule(new org.n52.jackson.datatype.jts.JtsModule())
+                .build();
     }
 
     @Test
@@ -44,7 +46,7 @@ public class DeserializeTest {
 
         // WHEN / THEN
         assertThatThrownBy(() -> mapper.readValue(json, TestObject.class))
-                .isInstanceOf(JsonMappingException.class)
+                .isInstanceOf(DatabindException.class)
                 .hasMessageStartingWith("Invalid coordinates, expecting an array but got: STRING");
     }
 
@@ -55,7 +57,7 @@ public class DeserializeTest {
 
         // WHEN / THEN
         assertThatThrownBy(() -> mapper.readValue(json, TestObject.class))
-                .isInstanceOf(JsonMappingException.class)
+                .isInstanceOf(DatabindException.class)
                 .hasMessageStartingWith("Invalid coordinates, expecting numbers but got: ARRAY");
     }
 

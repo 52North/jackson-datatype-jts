@@ -15,11 +15,6 @@
  */
 package org.n52.jackson.datatype.jts;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -32,17 +27,22 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
- * {@link JsonDeserializer} for {@link Geometry}.
+ * {@link ValueDeserializer} for {@link Geometry}.
  *
  * @author Christian Autermann
  */
-public class GeometryDeserializer extends JsonDeserializer<Geometry> {
+public class GeometryDeserializer extends ValueDeserializer<Geometry> {
+
     private static final int DEFAULT_SRID = 4326;
     private static final GeometryFactory DEFAULT_GEOMETRY_FACTORY = getDefaultGeometryFactory();
     private final GeometryFactory geometryFactory;
@@ -64,12 +64,12 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     @Override
-    public Geometry deserialize(JsonParser p, DeserializationContext context) throws IOException {
-        return deserializeGeometry(p.readValueAs(JsonNode.class), context);
+    public Geometry deserialize(JsonParser p, DeserializationContext context) {
+        return deserializeGeometry(p.readValueAsTree(), context);
     }
 
     private Geometry deserializeGeometry(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         String typeName = node.get(Field.TYPE).asText();
 
         GeometryType type = GeometryType.fromString(typeName)
@@ -95,22 +95,22 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
         }
     }
 
-    private JsonMappingException invalidGeometryType(DeserializationContext context, String typeName) {
-        return JsonMappingException.from(context, "Invalid geometry type: " + typeName);
+    private DatabindException invalidGeometryType(DeserializationContext context, String typeName) {
+        return DatabindException.from(context, "Invalid geometry type: " + typeName);
     }
 
-    private Point deserializePoint(JsonNode node, DeserializationContext context) throws JsonMappingException {
+    private Point deserializePoint(JsonNode node, DeserializationContext context) throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         return this.geometryFactory.createPoint(deserializeCoordinate(coordinates, context));
     }
 
-    private Polygon deserializePolygon(JsonNode node, DeserializationContext context) throws JsonMappingException {
+    private Polygon deserializePolygon(JsonNode node, DeserializationContext context) throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         return deserializeLinearRings(coordinates, context);
     }
 
     private MultiPolygon deserializeMultiPolygon(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Polygon[] polygons = new Polygon[coordinates.size()];
         for (int i = 0; i != coordinates.size(); ++i) {
@@ -120,14 +120,14 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private MultiPoint deserializeMultiPoint(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createMultiPointFromCoords(coords);
     }
 
     private GeometryCollection deserializeGeometryCollection(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode geometries = getArray(node, context, Field.GEOMETRIES);
         Geometry[] geom = new Geometry[geometries.size()];
         for (int i = 0; i != geometries.size(); ++i) {
@@ -137,14 +137,14 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private MultiLineString deserializeMultiLineString(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         LineString[] lineStrings = lineStringsFromJson(coordinates, context);
         return this.geometryFactory.createMultiLineString(lineStrings);
     }
 
     private LineString[] lineStringsFromJson(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         LineString[] strings = new LineString[node.size()];
         for (int i = 0; i != node.size(); ++i) {
             Coordinate[] coordinates = deserializeCoordinates(node.get(i), context);
@@ -154,14 +154,14 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private LineString deserializeLineString(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
         Coordinate[] coords = deserializeCoordinates(coordinates, context);
         return this.geometryFactory.createLineString(coords);
     }
 
     private Coordinate[] deserializeCoordinates(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         Coordinate[] points = new Coordinate[node.size()];
         for (int i = 0; i != node.size(); ++i) {
             points[i] = deserializeCoordinate(node.get(i), context);
@@ -170,7 +170,7 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private Polygon deserializeLinearRings(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         LinearRing shell = deserializeLinearRing(node.get(0), context);
         LinearRing[] holes = new LinearRing[node.size() - 1];
         for (int i = 1; i < node.size(); ++i) {
@@ -180,15 +180,15 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private LinearRing deserializeLinearRing(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         Coordinate[] coordinates = deserializeCoordinates(node, context);
         return this.geometryFactory.createLinearRing(coordinates);
     }
 
     private Coordinate deserializeCoordinate(JsonNode node, DeserializationContext context)
-            throws JsonMappingException {
+            throws DatabindException {
         if (node.size() < 2) {
-            throw JsonMappingException.from(context, String.format("Invalid number of ordinates: %d", node.size()));
+            throw DatabindException.from(context, String.format("Invalid number of ordinates: %d", node.size()));
         } else {
             double x = getOrdinate(node, 0, context);
             double y = getOrdinate(node, 1, context);
@@ -202,19 +202,19 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
     }
 
     private JsonNode getArray(JsonNode node, DeserializationContext context, String fieldName)
-            throws JsonMappingException {
+            throws DatabindException {
         JsonNode coordinates = node.get(fieldName);
         if (coordinates != null && !coordinates.isArray()) {
-            throw JsonMappingException.from(context, "Invalid coordinates, expecting an array but got: "
+            throw DatabindException.from(context, "Invalid coordinates, expecting an array but got: "
                     + coordinates.getNodeType().toString());
         }
         return coordinates;
     }
 
-    private double getOrdinate(JsonNode node, int i, DeserializationContext context) throws JsonMappingException {
+    private double getOrdinate(JsonNode node, int i, DeserializationContext context) throws DatabindException {
         JsonNode ordinate = node.get(i);
         if (!ordinate.isNumber()) {
-            throw JsonMappingException.from(context, "Invalid coordinates, expecting numbers but got: "
+            throw DatabindException.from(context, "Invalid coordinates, expecting numbers but got: "
                     + ordinate.getNodeType().toString());
         }
         return ordinate.asDouble();
