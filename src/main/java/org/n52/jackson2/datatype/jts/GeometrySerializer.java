@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.jackson.datatype.jts;
+package org.n52.jackson2.datatype.jts;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
@@ -26,12 +30,11 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
+import org.n52.jackson.datatype.jts.Field;
+import org.n52.jackson.datatype.jts.GeometryType;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -39,11 +42,14 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * {@link ValueSerializer} for {@link Geometry}.
+ * {@link JsonSerializer} for {@link Geometry}.
  *
+ * @deprecated Move to Jackson 3.
+ * @see org.n52.jackson.datatype.jts.GeometrySerializer
  * @author Christian Autermann
  */
-public class GeometrySerializer extends ValueSerializer<Geometry> {
+@Deprecated(forRemoval = true)
+public class GeometrySerializer extends JsonSerializer<Geometry> {
     static final int DEFAULT_DECIMAL_PLACES = 8;
     private final NumberFormat decimalFormat;
     private final IncludeBoundingBox includeBoundingBox;
@@ -71,8 +77,7 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
      * @param decimalPlaces      The number of decimal places for encoded coordinates.
      */
     public GeometrySerializer(@Nullable IncludeBoundingBox includeBoundingBox, int decimalPlaces) {
-        this.includeBoundingBox = Optional.ofNullable(includeBoundingBox).orElseGet(
-                IncludeBoundingBox::never);
+        this.includeBoundingBox = Optional.ofNullable(includeBoundingBox).orElseGet(IncludeBoundingBox::never);
         if (decimalPlaces < 0) {
             throw new IllegalArgumentException("decimalPlaces < 0");
         }
@@ -94,7 +99,7 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
     }
 
     @Override
-    public void serialize(Geometry geometry, JsonGenerator generator, SerializationContext provider) {
+    public void serialize(Geometry geometry, JsonGenerator generator, SerializerProvider provider) throws IOException {
         if (geometry == null) {
             generator.writeNull();
         } else if (geometry instanceof Polygon) {
@@ -112,44 +117,47 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         } else if (geometry instanceof GeometryCollection) {
             serialize((GeometryCollection) geometry, generator, provider);
         } else {
-            throw DatabindException.from(generator,
+            throw JsonMappingException.from(generator,
                                             String.format("Geometry type %s is not supported.",
                                                           geometry.getClass().getName()));
         }
     }
 
-    private void serialize(GeometryCollection value, JsonGenerator generator, SerializationContext context) {
+    private void serialize(GeometryCollection value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
 
         serializeTypeAndBoundingBox(GeometryType.GEOMETRY_COLLECTION, value, generator);
 
-        generator.writeArrayPropertyStart(Field.GEOMETRIES);
+        generator.writeArrayFieldStart(Field.GEOMETRIES);
 
         for (int i = 0; i != value.getNumGeometries(); ++i) {
-            serialize(value.getGeometryN(i), generator, context);
+            serialize(value.getGeometryN(i), generator, provider);
         }
 
         generator.writeEndArray();
         generator.writeEndObject();
     }
 
-    private void serialize(MultiPoint value, JsonGenerator generator, SerializationContext context) {
+    private void serialize(MultiPoint value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_POINT, value, generator);
-        generator.writeArrayPropertyStart(Field.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
 
         for (int i = 0; i < value.getNumGeometries(); ++i) {
-            serializeCoordinate((Point) value.getGeometryN(i), generator, context);
+            serializeCoordinate((Point) value.getGeometryN(i), generator, provider);
         }
 
         generator.writeEndArray();
         generator.writeEndObject();
     }
 
-    private void serialize(MultiLineString value, JsonGenerator generator, SerializationContext provider) {
+    private void serialize(MultiLineString value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_LINE_STRING, value, generator);
-        generator.writeArrayPropertyStart(Field.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
         for (int i = 0; i < value.getNumGeometries(); ++i) {
             serializeCoordinates((LineString) value.getGeometryN(i), generator, provider);
         }
@@ -157,10 +165,11 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         generator.writeEndObject();
     }
 
-    private void serialize(MultiPolygon value, JsonGenerator generator, SerializationContext provider) {
+    private void serialize(MultiPolygon value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.MULTI_POLYGON, value, generator);
-        generator.writeArrayPropertyStart(Field.COORDINATES);
+        generator.writeArrayFieldStart(Field.COORDINATES);
         for (int i = 0; i < value.getNumGeometries(); ++i) {
             serializeCoordinates((Polygon) value.getGeometryN(i), generator, provider);
         }
@@ -168,37 +177,41 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         generator.writeEndObject();
     }
 
-    private void serialize(Polygon value, JsonGenerator generator, SerializationContext provider) {
+    private void serialize(Polygon value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.POLYGON, value, generator);
-        generator.writeName(Field.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         GeometrySerializer.this.serializeCoordinates(value, generator, provider);
         generator.writeEndObject();
     }
 
-    private void serialize(LineString value, JsonGenerator generator, SerializationContext provider) {
+    private void serialize(LineString value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.LINE_STRING, value, generator);
-        generator.writeName(Field.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         serializeCoordinates(value, generator, provider);
         generator.writeEndObject();
     }
 
-    private void serialize(Point value, JsonGenerator generator, SerializationContext provider) {
+    private void serialize(Point value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartObject();
         serializeTypeAndBoundingBox(GeometryType.POINT, value, generator);
-        generator.writeName(Field.COORDINATES);
+        generator.writeFieldName(Field.COORDINATES);
         serializeCoordinate(value, generator, provider);
         generator.writeEndObject();
     }
 
-    private void serializeTypeAndBoundingBox(GeometryType type, Geometry geometry, JsonGenerator generator) {
+    private void serializeTypeAndBoundingBox(GeometryType type, Geometry geometry, JsonGenerator generator)
+            throws IOException {
 
-        generator.writeStringProperty(Field.TYPE, type.toString());
+        generator.writeStringField(Field.TYPE, type.toString());
 
         if (this.includeBoundingBox.shouldIncludeBoundingBoxFor(type) && !geometry.isEmpty()) {
             Envelope envelope = geometry.getEnvelopeInternal();
-            generator.writeArrayPropertyStart(Field.BOUNDING_BOX);
+            generator.writeArrayFieldStart(Field.BOUNDING_BOX);
             generator.writeNumber(envelope.getMinX());
             generator.writeNumber(envelope.getMinY());
             generator.writeNumber(envelope.getMaxX());
@@ -207,7 +220,8 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         }
     }
 
-    private void serializeCoordinates(Polygon value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinates(Polygon value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartArray();
         if (!value.isEmpty()) {
             serializeCoordinates(value.getExteriorRing(), generator, provider);
@@ -219,11 +233,13 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         generator.writeEndArray();
     }
 
-    private void serializeCoordinates(LineString value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinates(LineString value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         serializeCoordinates(value.getCoordinateSequence(), generator, provider);
     }
 
-    private void serializeCoordinates(CoordinateSequence value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinates(CoordinateSequence value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartArray();
         for (int i = 0; i < value.size(); ++i) {
             serializeCoordinate(value.getCoordinate(i), generator, provider);
@@ -231,11 +247,13 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         generator.writeEndArray();
     }
 
-    private void serializeCoordinate(Point value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinate(Point value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         serializeCoordinate(value.getCoordinate(), generator, provider);
     }
 
-    private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializerProvider provider)
+            throws IOException {
         generator.writeStartArray();
         generator.writeNumber(decimalFormat.format(value.getX()));
         generator.writeNumber(decimalFormat.format(value.getY()));

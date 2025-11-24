@@ -26,7 +26,7 @@
   <groupId>org.n52.jackson</groupId>
   <artifactId>jackson-datatype-jts</artifactId>
   <inceptionYear>2019</inceptionYear>
-  <version>2.1.0-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <name>Jackson JTS datatype</name>
   <description>Jackson JTS datatype</description>
   <developers>
@@ -58,7 +58,9 @@
     </license>
   </licenses>
   <properties>
-    <jackson-version>2.18.3</jackson-version>
+    <jackson2-version>2.20.1</jackson2-version>
+    <jackson2-annotation-version>2.20</jackson2-annotation-version>
+    <jackson-version>3.0.2</jackson-version>
   </properties>
   <dependencies>
     <dependency>
@@ -67,19 +69,29 @@
       <version>1.20.0</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson2-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <version>${jackson2-annotation-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
       <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson-version}</version>
+      <version>${jackson2-version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

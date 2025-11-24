@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.jackson.datatype.jts;
+package org.n52.jackson2.datatype.jts;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -24,17 +27,17 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.module.SimpleModule;
 
 import javax.annotation.Nullable;
 
 /**
- * {@link tools.jackson.databind.JacksonModule} to add serialization for JTS geometries.
+ * {@link com.fasterxml.jackson.databind.Module} to add serialization for JTS geometries.
  *
+ * @deprecated Move to Jackson 3.
+ * @see org.n52.jackson.datatype.jts.JtsModule
  * @author Christian Autermann
  */
+@Deprecated(forRemoval = true)
 public class JtsModule extends SimpleModule {
     private static final long serialVersionUID = 1L;
     private final GeometryFactory geometryFactory;
@@ -127,22 +130,22 @@ public class JtsModule extends SimpleModule {
         var deserializer = getDeserializer();
         addSerializer(Geometry.class, getSerializer());
         addDeserializer(Geometry.class, deserializer);
-        addDeserializer(Point.class, new TypeSafeValueDeserializer<>(Point.class, deserializer));
-        addDeserializer(LineString.class, new TypeSafeValueDeserializer<>(LineString.class, deserializer));
-        addDeserializer(Polygon.class, new TypeSafeValueDeserializer<>(Polygon.class, deserializer));
-        addDeserializer(MultiPoint.class, new TypeSafeValueDeserializer<>(MultiPoint.class, deserializer));
-        addDeserializer(MultiLineString.class, new TypeSafeValueDeserializer<>(MultiLineString.class, deserializer));
-        addDeserializer(MultiPolygon.class, new TypeSafeValueDeserializer<>(MultiPolygon.class, deserializer));
+        addDeserializer(Point.class, new TypeSafeJsonDeserializer<>(Point.class, deserializer));
+        addDeserializer(LineString.class, new TypeSafeJsonDeserializer<>(LineString.class, deserializer));
+        addDeserializer(Polygon.class, new TypeSafeJsonDeserializer<>(Polygon.class, deserializer));
+        addDeserializer(MultiPoint.class, new TypeSafeJsonDeserializer<>(MultiPoint.class, deserializer));
+        addDeserializer(MultiLineString.class, new TypeSafeJsonDeserializer<>(MultiLineString.class, deserializer));
+        addDeserializer(MultiPolygon.class, new TypeSafeJsonDeserializer<>(MultiPolygon.class, deserializer));
         addDeserializer(GeometryCollection.class,
-                        new TypeSafeValueDeserializer<>(GeometryCollection.class, deserializer));
+                        new TypeSafeJsonDeserializer<>(GeometryCollection.class, deserializer));
         super.setupModule(context);
     }
 
-    private ValueSerializer<Geometry> getSerializer() {
+    private JsonSerializer<Geometry> getSerializer() {
         return new GeometrySerializer(this.includeBoundingBox, this.decimalPlaces);
     }
 
-    private ValueDeserializer<Geometry> getDeserializer() {
+    private JsonDeserializer<Geometry> getDeserializer() {
         return new GeometryDeserializer(geometryFactory);
     }
 
