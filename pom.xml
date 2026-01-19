@@ -58,7 +58,7 @@
     </license>
   </licenses>
   <properties>
-    <jackson-version>2.18.3</jackson-version>
+    <jackson-version>2.21</jackson-version>
   </properties>
   <dependencies>
     <dependency>
