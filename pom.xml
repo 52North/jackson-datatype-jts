@@ -59,9 +59,9 @@
     </license>
   </licenses>
   <properties>
-    <jackson2-version>2.21.0</jackson2-version>
-    <jackson2-annotation-version>2.21</jackson2-annotation-version>
-    <jackson-version>3.0.2</jackson-version>
+    <jackson2-version>2.20.1</jackson2-version>
+    <jackson2-annotation-version>2.20</jackson2-annotation-version>
+    <jackson-version>3.0.4</jackson-version>
   </properties>
   <dependencies>
     <dependency>
