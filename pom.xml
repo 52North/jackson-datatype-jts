@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.n52</groupId>
     <artifactId>parent</artifactId>
-    <version>28</version>
+    <version>30</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.n52.jackson</groupId>
