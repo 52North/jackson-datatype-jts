@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 52°North Spatial Information Research GmbH
+ * Copyright 2019-2025 52°North Spatial Information Research GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.jackson.datatype.jts;
+package org.n52.jackson2.datatype.jts;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -28,7 +27,8 @@ public class DeserializeTest {
     private final ObjectMapper mapper;
 
     public DeserializeTest() {
-        mapper = JsonMapper.builder().addModule(new JtsModule()).build();
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JtsModule());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class DeserializeTest {
 
         // WHEN / THEN
         assertThatThrownBy(() -> mapper.readValue(json, TestObject.class))
-                .isInstanceOf(DatabindException.class)
+                .isInstanceOf(JsonMappingException.class)
                 .hasMessageStartingWith("Invalid coordinates, expecting an array but got: STRING");
     }
 
@@ -55,7 +55,7 @@ public class DeserializeTest {
 
         // WHEN / THEN
         assertThatThrownBy(() -> mapper.readValue(json, TestObject.class))
-                .isInstanceOf(DatabindException.class)
+                .isInstanceOf(JsonMappingException.class)
                 .hasMessageStartingWith("Invalid coordinates, expecting numbers but got: ARRAY");
     }
 

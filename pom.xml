@@ -59,7 +59,9 @@
     </license>
   </licenses>
   <properties>
-    <jackson-version>2.21.0</jackson-version>
+    <jackson2-version>2.21.0</jackson2-version>
+    <jackson2-annotation-version>2.21</jackson2-annotation-version>
+    <jackson-version>3.0.2</jackson-version>
   </properties>
   <dependencies>
     <dependency>
@@ -68,19 +70,29 @@
       <version>1.20.0</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson2-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.21</version>
+      <version>${jackson2-annotation-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson-version}</version>
+      <version>${jackson2-version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.jackson.datatype.jts;
+package org.n52.jackson2.datatype.jts;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -29,7 +29,10 @@ import java.util.Objects;
  * Type safe variant of a JsonDeserializer that checks the parsed value is of the right type.
  *
  * @param <T> The type to be accepted.
+ * @deprecated Move to Jackson 3.
+ * @see org.n52.jackson.datatype.jts.TypeSafeValueDeserializer
  */
+@Deprecated(forRemoval = true)
 public class TypeSafeJsonDeserializer<T> extends JsonDeserializer<T> {
     private final JsonDeserializer<? super T> delegate;
     private final JavaType type;

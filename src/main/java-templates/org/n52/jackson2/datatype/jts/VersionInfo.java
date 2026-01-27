@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 52°North Spatial Information Research GmbH
+ * Copyright 2019-2025 52°North Spatial Information Research GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.jackson.datatype.jts;
+package org.n52.jackson2.datatype.jts;
 
-import tools.jackson.core.Version;
+import com.fasterxml.jackson.core.Version;
 
+/**
+ * @deprecated Move to Jackson 3.
+ * @see org.n52.jackson.datatype.jts.VersionInfo
+ */
+@Deprecated(forRemoval = true)
 interface VersionInfo {
     String GROUP_ID = "${project.groupId}";
     String ARTIFACT_ID = "${project.artifactId}";
