@@ -223,7 +223,8 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
         serializeCoordinates(value.getCoordinateSequence(), generator, provider);
     }
 
-    private void serializeCoordinates(CoordinateSequence value, JsonGenerator generator, SerializationContext provider) {
+    private void serializeCoordinates(CoordinateSequence value, JsonGenerator generator,
+            SerializationContext provider) {
         generator.writeStartArray();
         for (int i = 0; i < value.size(); ++i) {
             serializeCoordinate(value.getCoordinate(i), generator, provider);
