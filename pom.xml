@@ -29,6 +29,7 @@
   <version>3.0.0-SNAPSHOT</version>
   <name>Jackson JTS datatype</name>
   <description>Jackson JTS datatype</description>
+  <url>https://github.com/52North/jackson-datatype-jts</url>
   <developers>
     <developer>
       <id>autermann</id>
