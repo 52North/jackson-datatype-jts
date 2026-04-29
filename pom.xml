@@ -59,7 +59,7 @@
     </license>
   </licenses>
   <properties>
-    <jackson2-version>2.20.1</jackson2-version>
+    <jackson2-version>2.21.3</jackson2-version>
     <jackson2-annotation-version>2.20</jackson2-annotation-version>
     <jackson-version>3.0.4</jackson-version>
   </properties>
