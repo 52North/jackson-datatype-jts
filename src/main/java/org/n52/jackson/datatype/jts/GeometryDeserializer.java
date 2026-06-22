@@ -170,6 +170,9 @@ public class GeometryDeserializer extends ValueDeserializer<Geometry> {
 
     private Polygon deserializeLinearRings(JsonNode node, DeserializationContext context)
             throws DatabindException {
+        if (node.size() == 0) {
+            return this.geometryFactory.createPolygon();
+        }
         LinearRing shell = deserializeLinearRing(node.get(0), context);
         LinearRing[] holes = new LinearRing[node.size() - 1];
         for (int i = 1; i < node.size(); ++i) {

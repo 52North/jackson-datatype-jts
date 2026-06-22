@@ -18,10 +18,13 @@ package org.n52.jackson.datatype.jts;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DeserializeTest {
@@ -59,8 +62,18 @@ public class DeserializeTest {
                 .hasMessageStartingWith("Invalid coordinates, expecting numbers but got: ARRAY");
     }
 
+    @Test
+    public void deserializes_empty_polygon() {
+        // GIVEN
+        String json = "{\"polygon\":{\"type\":\"Polygon\",\"coordinates\":[]}}";
+
+        // WHEN / THEN
+        assertThatNoException().isThrownBy(() -> mapper.readValue(json, TestObject.class));
+    }
+
     public static class TestObject {
         private Point point;
+        private Polygon polygon;
         private MultiPolygon multiPolygon;
 
         public MultiPolygon getMultiPolygon() {
@@ -77,6 +90,14 @@ public class DeserializeTest {
 
         public void setPoint(Point point) {
             this.point = point;
+        }
+
+        public Polygon getPolygon() {
+            return polygon;
+        }
+
+        public void setPolygon(Polygon polygon) {
+            this.polygon = polygon;
         }
     }
 }
