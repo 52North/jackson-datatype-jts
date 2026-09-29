@@ -252,7 +252,12 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
 
     private void serializeCoordinate(Point value, JsonGenerator generator, SerializerProvider provider)
             throws IOException {
-        serializeCoordinate(value.getCoordinate(), generator, provider);
+        if (value.isEmpty()) {
+            generator.writeStartArray();
+            generator.writeEndArray();
+        } else {
+            serializeCoordinate(value.getCoordinate(), generator, provider);
+        }
     }
 
     private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializerProvider provider)
