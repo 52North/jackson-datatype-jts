@@ -235,7 +235,12 @@ public class GeometrySerializer extends ValueSerializer<Geometry> {
     }
 
     private void serializeCoordinate(Point value, JsonGenerator generator, SerializationContext provider) {
-        serializeCoordinate(value.getCoordinate(), generator, provider);
+        if (value.isEmpty()) {
+            generator.writeStartArray();
+            generator.writeEndArray();
+        } else {
+            serializeCoordinate(value.getCoordinate(), generator, provider);
+        }
     }
 
     private void serializeCoordinate(Coordinate value, JsonGenerator generator, SerializationContext provider) {

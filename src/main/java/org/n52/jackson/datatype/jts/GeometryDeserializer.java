@@ -100,6 +100,14 @@ public class GeometryDeserializer extends ValueDeserializer<Geometry> {
 
     private Point deserializePoint(JsonNode node, DeserializationContext context) throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
+        return deserializePointCoordinates(coordinates, context);
+    }
+
+    private Point deserializePointCoordinates(JsonNode coordinates, DeserializationContext context)
+            throws DatabindException {
+        if (coordinates.isArray() && coordinates.isEmpty()) {
+            return this.geometryFactory.createPoint();
+        }
         return this.geometryFactory.createPoint(deserializeCoordinate(coordinates, context));
     }
 
@@ -121,8 +129,11 @@ public class GeometryDeserializer extends ValueDeserializer<Geometry> {
     private MultiPoint deserializeMultiPoint(JsonNode node, DeserializationContext context)
             throws DatabindException {
         JsonNode coordinates = getArray(node, context, Field.COORDINATES);
-        Coordinate[] coords = deserializeCoordinates(coordinates, context);
-        return this.geometryFactory.createMultiPointFromCoords(coords);
+        Point[] points = new Point[coordinates.size()];
+        for (int i = 0; i != coordinates.size(); ++i) {
+            points[i] = deserializePointCoordinates(coordinates.get(i), context);
+        }
+        return this.geometryFactory.createMultiPoint(points);
     }
 
     private GeometryCollection deserializeGeometryCollection(JsonNode node, DeserializationContext context)
